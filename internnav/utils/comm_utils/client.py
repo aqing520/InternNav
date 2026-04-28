@@ -13,6 +13,12 @@ def serialize_obs(obs):
     return encoded
 
 
+def _dump_model(model):
+    if hasattr(model, 'model_dump'):
+        return model.model_dump(mode='json')
+    return model.dict()
+
+
 class AgentClient:
     """
     Client class for Agent service.
@@ -23,7 +29,7 @@ class AgentClient:
         self.agent_name = self._initialize_agent(config)
 
     def _initialize_agent(self, config: AgentCfg) -> str:
-        request_data = InitRequest(agent_config=config).model_dump(mode='json')
+        request_data = _dump_model(InitRequest(agent_config=config))
 
         response = requests.post(
             url=f'{self.base_url}/agent/init',
@@ -35,7 +41,7 @@ class AgentClient:
         return response.json()['agent_name']
 
     def step(self, obs: List[Dict[str, Any]]) -> List[List[int]]:
-        request_data = StepRequest(observation=serialize_obs(obs)).model_dump(mode='json')
+        request_data = _dump_model(StepRequest(observation=serialize_obs(obs)))
 
         response = requests.post(
             url=f'{self.base_url}/agent/{self.agent_name}/step',
@@ -49,7 +55,7 @@ class AgentClient:
     def reset(self, reset_index: Optional[List] = None) -> None:
         response = requests.post(
             url=f'{self.base_url}/agent/{self.agent_name}/reset',
-            json=ResetRequest(reset_index=reset_index).model_dump(mode='json'),
+            json=_dump_model(ResetRequest(reset_index=reset_index)),
             headers={'Content-Type': 'application/json'},
         )
         response.raise_for_status()

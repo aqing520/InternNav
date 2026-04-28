@@ -75,6 +75,10 @@ class HabitatEnv(base.Env):
                     continue
                 all_episodes.append(episode)
 
+        episode_limit = self.env_config.env_settings.get('episode_limit')
+        if episode_limit is not None:
+            all_episodes = all_episodes[:episode_limit]
+
         return all_episodes
 
     def reset(self):

@@ -1,0 +1,49 @@
+2026-04-28 InternNav Habitat S2 val_unseen Eval Record
+
+Task
+- Native Habitat System2 evaluation on R2R val_unseen.
+- Model: InternVLA-N1-System2
+
+Environment
+- Eval env: /data1/conda_envs/embAI_sup/awzy/internnav_habitat_s2
+- GPUs used for final 4-GPU run: 1,2,4,5
+
+Key config
+- Config file: scripts/eval/configs/habitat_s2_4gpu_val_unseen_copyenv_cfg.py
+- Output dir: logs/habitat/test_s2_4gpu_val_unseen_copyenv
+
+Final result
+- Episodes: 1839
+- Success Rate (SR): 0.6084828972816467
+- SPL: 0.551144924984987
+- Oracle Success (OS): 0.6808047890663147
+- Navigation Error (NE): 4.243834972381592
+
+Episode stats
+- Successes: 1119 / 1839
+- Avg steps: 101.4089178901577
+- Min steps: 21
+- Max steps: 501
+- Episodes hitting step cap: 72
+
+Official README reference
+- README R2R System2 report:
+  NE 4.25
+  OS 68.3
+  SR 60.9
+  SPL 55.2
+
+Comparison to official System2
+- NE: 4.2438 vs 4.25, basically matched
+- OS: 68.08 vs 68.3, delta about -0.22
+- SR: 60.85 vs 60.9, delta about -0.05
+- SPL: 55.11 vs 55.2, delta about -0.09
+
+Conclusion
+- Native Habitat System2 pipeline is reproduced successfully.
+- Result is effectively aligned with the official reported System2 numbers.
+- This System2 result is weaker than the README Dual System / DualVLN results, but the gap is expected.
+
+Important files
+- Result: logs/habitat/test_s2_4gpu_val_unseen_copyenv/result.json
+- Progress: logs/habitat/test_s2_4gpu_val_unseen_copyenv/progress.json

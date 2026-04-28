@@ -1,6 +1,10 @@
 from internnav.evaluator.base import Evaluator
 from internnav.evaluator.distributed_base import DistributedEvaluator
-from internnav.evaluator.vln_distributed_evaluator import VLNDistributedEvaluator
+
+try:
+    from internnav.evaluator.vln_distributed_evaluator import VLNDistributedEvaluator
+except Exception:
+    VLNDistributedEvaluator = None
 
 # register habitat
 try:

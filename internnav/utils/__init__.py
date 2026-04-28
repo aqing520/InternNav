@@ -1,2 +1,6 @@
 from .comm_utils.client import AgentClient
-from .comm_utils.server import AgentServer
+
+try:
+    from .comm_utils.server import AgentServer
+except Exception:
+    AgentServer = None

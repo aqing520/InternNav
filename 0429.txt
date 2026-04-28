@@ -1,0 +1,46 @@
+2026-04-29 InternNav Habitat Dual System val_unseen 结果记录
+
+任务
+- 对 `logs/habitat/test_dual_system_8gpu_val_unseen` 的 Dual System 结果做汇总。
+- 该目录当前保留了 `result.json` 和 `progress.json`；“8gpu” 来自输出目录名，具体启动命令和配置文件没有在该目录中直接记录。
+
+最终结果
+- Episodes: 1839
+- SR: 0.6373028755187988
+- SPL: 0.5784890783982577
+- OS: 0.6992930769920349
+- NE: 4.161075592041016
+
+Episode 统计
+- Successes: 1172 / 1839
+- Failures: 667 / 1839
+- Avg steps: 99.91517128874388
+- Median steps: 68
+- Success episode avg steps: 75.3967576791809
+- Failure episode avg steps: 142.9970014992504
+- Min steps: 15
+- Max steps: 501
+- Episodes hitting step cap: 81
+
+结果解读
+- 相比 `0428.txt` 里的本地 System2 复现结果，Dual System 四个核心指标都更强：
+  SR 从 60.85 提升到 63.73，提升 2.88 个点；
+  SPL 从 55.11 提升到 57.85，提升 2.73 个点；
+  OS 从 68.08 提升到 69.93，提升 1.85 个点；
+  NE 从 4.24 降到 4.16，改善约 0.08 m。
+- 与 `README.md` 里 Flash Controller on R2R Unseen 的 DualVLN 对照值相比，官方表中的 NE / OS / SR / SPL 为 3.90 / 69.93 / 63.62 / 56.49。
+  这次结果的 OS 基本完全对齐，SR 高 0.11 个点，SPL 高 1.36 个点，但 NE 高 0.26 m。
+- 667 个失败 episode 里，有 114 个是 `success=0` 但 `OS=1`，占失败集 17.1%。
+  这说明有一部分轨迹其实到过目标附近，但最终停点没有拿到 success，停点决策仍然有优化空间。
+- 长尾失败仍然存在：81 条 episode 跑满了 501 step；
+  失败 episode 的平均步数是 143，明显高于成功 episode 的 75，说明一旦进入错误分支，恢复成本还是偏高。
+- 从 scene 维度看，压力最大的几个大场景是 `QUCTc6BB5sX`（136 / 255，SR 53.33%）、`oLBMNvg9in8`（93 / 177，SR 52.54%）和 `Z6MFQCViBuw`（92 / 159，SR 57.86%）。
+  表现相对更强的是 `TbHJrupSAjP`（191 / 264，SR 72.35%）和 `X7HyMhZNoso`（101 / 141，SR 71.63%）。
+
+结论
+- 这次 `test_dual_system_8gpu_val_unseen` 已经稳定超过前一天的 System2 本地复现结果，说明 Dual System 的收益在本地 Habitat eval 上是明确可见的。
+- 现在更值得继续看的不是总体均值，而是长尾失败：高步数样本、501 step 截断，以及 `OS=1` 但 `success=0` 的停点损失。
+
+重要文件
+- Result: `logs/habitat/test_dual_system_8gpu_val_unseen/result.json`
+- Progress: `logs/habitat/test_dual_system_8gpu_val_unseen/progress.json`

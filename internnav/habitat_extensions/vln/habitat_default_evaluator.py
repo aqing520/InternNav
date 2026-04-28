@@ -1,11 +1,13 @@
 import argparse
 import sys
 
+import torch
+
 sys.path.append('./src/diffusion-policy')
 
 
 # Import for Habitat registry side effects — do not remove
-import internnav.env.utils.habitat_extensions.measures  # noqa: F401
+import internnav.habitat_extensions.vln.measures  # noqa: F401
 from internnav.configs.evaluator import EvalCfg
 from internnav.evaluator import DistributedEvaluator, Evaluator
 
@@ -94,6 +96,35 @@ class HabitatDefaultEvaluator(DistributedEvaluator):
         # init agent and env
         super().__init__(cfg)
 
+    def _reset_agent(self, episode, env):
+        try:
+            self.agent.reset(episode, env)
+            return
+        except TypeError:
+            pass
+
+        try:
+            self.agent.reset()
+        except TypeError:
+            self.agent.reset(None)
+
+    def _act_agent(self, obs, env, info=None):
+        if hasattr(self.agent, 'act'):
+            return self.agent.act(obs, env, info=info)
+
+        action = self.agent.step([obs])
+
+        if isinstance(action, list) and len(action) == 1:
+            action = action[0]
+
+        if isinstance(action, dict) and 'action' in action:
+            action = action['action']
+
+        while isinstance(action, list) and len(action) == 1:
+            action = action[0]
+
+        return action
+
     def eval_action(self):
         """
         Run local episodes on this rank.
@@ -108,13 +139,13 @@ class HabitatDefaultEvaluator(DistributedEvaluator):
             if not env.is_running or obs is None:
                 break
 
-            episode = env.env.current_episode
-            self.agent.reset(episode, env)
+            episode = env.get_current_episode() if hasattr(env, 'get_current_episode') else env._env.current_episode
+            self._reset_agent(episode, env)
 
             done = False
             step_id = 0
             while not done and step_id <= self.max_steps_per_episode:
-                action = self.agent.act(obs, env, info=None)
+                action = self._act_agent(obs, env, info=None)
                 obs, reward, done, info = env.step(action)
                 step_id += 1
 
@@ -126,10 +157,10 @@ class HabitatDefaultEvaluator(DistributedEvaluator):
 
         env.close()
         return {
-            "sucs": sucs,  # shape [N_local]
-            "spls": spls,  # shape [N_local]
-            "oss": oss,  # shape [N_local]
-            "nes": nes,  # shape [N_local]
+            "sucs": torch.tensor(sucs, dtype=torch.float32),
+            "spls": torch.tensor(spls, dtype=torch.float32),
+            "oss": torch.tensor(oss, dtype=torch.float32),
+            "nes": torch.tensor(nes, dtype=torch.float32),
         }
 
     def calc_metrics(self, global_metrics: dict) -> dict:

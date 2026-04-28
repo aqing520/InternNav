@@ -147,7 +147,24 @@ class StepsTaken(Measure):
         self._metric += 1.0
 
 
-from dtw import dtw
+try:
+    from dtw import dtw
+except ImportError:
+    def dtw(seq_a, seq_b, dist):
+        len_a, len_b = len(seq_a), len(seq_b)
+        costs = np.full((len_a + 1, len_b + 1), np.inf, dtype=np.float64)
+        costs[0, 0] = 0.0
+
+        for i in range(1, len_a + 1):
+            for j in range(1, len_b + 1):
+                step_cost = dist(seq_a[i - 1], seq_b[j - 1])
+                costs[i, j] = step_cost + min(
+                    costs[i - 1, j],
+                    costs[i, j - 1],
+                    costs[i - 1, j - 1],
+                )
+
+        return costs[len_a, len_b], None, None, None
 
 
 @registry.register_measure

@@ -40,7 +40,6 @@ from internnav.habitat_extensions.vln.utils import (
     preprocess_depth_image_v2,
     xyz_yaw_pitch_to_tf_matrix,
 )
-from internnav.model.basemodel.internvla_n1.internvla_n1 import InternVLAN1ForCausalLM
 from internnav.model.utils.vln_utils import split_and_clean, traj_to_actions
 
 # Import for Habitat registry side effects — do not remove
@@ -114,6 +113,8 @@ class HabitatVLNEvaluator(DistributedEvaluator):
 
         device = torch.device(f"cuda:{self.local_rank}")
         if self.model_args.mode == 'dual_system':
+            from internnav.model.basemodel.internvla_n1.internvla_n1 import InternVLAN1ForCausalLM
+
             model = InternVLAN1ForCausalLM.from_pretrained(
                 self.model_args.model_path,
                 torch_dtype=torch.bfloat16,
