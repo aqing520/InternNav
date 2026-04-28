@@ -106,7 +106,7 @@ class DAT_RGBD_Patch_Backbone(nn.Module):
         embed_size=512,
         finetune=True,
         memory_size=8,
-        checkpoint="checkpoints/depth_anything_v2_vits.pth",
+        checkpoint="checkpoints/depth_anything_v2_metric_hypersim_vits.pth",
         input_dtype="bf16",
         version=0.0,
         device='cuda:0',
@@ -209,7 +209,7 @@ class RGBDBackbone(nn.Module):
         embed_size=512,
         finetune=True,
         memory_size=8,
-        checkpoint="checkpoints/depth_anything_v2_vits.pth",
+        checkpoint="checkpoints/depth_anything_v2_metric_hypersim_vits.pth",
         device='cuda:0',
     ):
         super().__init__()
